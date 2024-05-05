@@ -1,9 +1,16 @@
 '''
 做一個簡單的伺服器
 '''
+from flasgger import Swagger
 from flask import Flask
 
 app = Flask(__name__)
+
+app.config['SWAGGER'] = {
+    'title': 'IPCP API',
+    'uiversion': 3
+}
+swagger = Swagger(app)
 
 
 @app.route('/')
@@ -17,8 +24,22 @@ def hello_world():
 @app.route('/adjust_light_auto')
 def adjust_light_auto():
     """
-    - 控制模組
+    URL: http://localhost:5000/adjust_light_auto
+    🦒控制模組
     這個函式會回傳 "adjust_light_auto" 字串
+    ---
+    tags:
+      - adjust_light_auto
+    produces: application/json,
+    responses:
+      200:
+        description: adjust_light_auto
+        schema:
+          id: adjust_light_auto
+          properties:
+            message:
+              type: string
+              description: adjust_light_auto
     """
     return 'adjust_light_auto'
 
@@ -26,8 +47,22 @@ def adjust_light_auto():
 @app.route('/pump_auto')
 def pump_auto():
     '''
-    - 控制模組
+    URL: http://localhost:5000/pump_auto
+    🦒控制模組
     這個函式會回傳 "pump_auto" 字串
+        ---
+    tags:
+      - pump_auto
+    produces: application/json,
+    responses:
+      200:
+        description: pump_auto
+        schema:
+          id: pump_auto
+          properties:
+            message:
+              type: string
+              description: pump_auto
     '''
     return 'pump_auto'
 
