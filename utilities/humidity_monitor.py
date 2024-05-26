@@ -28,12 +28,11 @@ class HumidityMonitor:
             }
         '''
         # Read Humidity and Temperature from DHT22
-        DHT_humidity, DHT_temperature = dht.read_retry(dht.DHT22, self.DHT22_PORT)
+        DHT_humidity, _ = dht.read_retry(dht.DHT22, self.DHT22_PORT)
         # Read Humidity from YL69, 0 means wet, 1 means dry
         soil_humidity_threshold = DigitalInputDevice(self.YL69_PORT)
         self.humidity = {
             "humidity": DHT_humidity,
-            "temperature": DHT_humidity,
             "soil_humidity_threshold": soil_humidity_threshold.value
         }
         return self.humidity
