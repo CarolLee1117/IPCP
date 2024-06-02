@@ -1,10 +1,14 @@
 '''
-做一個簡單的伺服器
+Use flask-restful to create a simple API
 '''
 from flasgger import Swagger
 from flask import Flask
+from flask_restful import Api, Resource, reqparse
+
+from utilities import brightness_monitor, humidity_monitor, temperature_monitor
 
 app = Flask(__name__)
+api = Api(app)
 
 app.config['SWAGGER'] = {
     'title': 'IPCP API',
@@ -13,140 +17,62 @@ app.config['SWAGGER'] = {
 swagger = Swagger(app)
 
 
-@app.route('/')
-def hello_world():
-    """
-    這個函式會回傳 "Hello World!" 字串
-    """
-    return 'Hello World!'
-
-
-@app.route('/adjust_light_auto')
-def adjust_light_auto():
-    """
-    URL: http://localhost:5000/adjust_light_auto
-    🦒控制模組
-    這個函式會回傳 "adjust_light_auto" 字串
-    ---
-    tags:
-      - adjust_light_auto
-    produces: application/json,
-    responses:
-      200:
-        description: adjust_light_auto
-        schema:
-          id: adjust_light_auto
-          properties:
-            message:
-              type: string
-              description: adjust_light_auto
-    """
-    return 'adjust_light_auto'
-
-
-@app.route('/pump_auto')
-def pump_auto():
+# 取得環境參數（濕度、亮度、溫度）
+class Environment(Resource):
     '''
-    URL: http://localhost:5000/pump_auto
-    🦒控制模組
-    這個函式會回傳 "pump_auto" 字串
-        ---
-    tags:
-      - pump_auto
-    produces: application/json,
-    responses:
-      200:
-        description: pump_auto
-        schema:
-          id: pump_auto
-          properties:
-            message:
-              type: string
-              description: pump_auto
+    取得環境參數（濕度、亮度、溫度）
     '''
-    return 'pump_auto'
+    def get(self):
+        '''
+        使用 GET 方法取得環境參數
+        '''
+        b = brightness_monitor.BrightnessMonitor()
+        brightness = b.show_brightness()
+
+        h = humidity_monitor.HumidityMonitor()
+        humidity = h.show_humidity()
+
+        t = temperature_monitor.TemperatureMonitor()
+        temperature = t.show_temperature()
+        return {
+            'brightness': brightness,
+            'humidity': humidity,
+            'temperature': temperature
+        }
 
 
-@app.route('/pump_manual')
-def pump_manual():
+# 開啟／關閉植物燈
+class PlantLight(Resource):
     '''
-    - 控制模組
-    這個函式會回傳 "pump_manual" 字串
+    開啟／關閉植物燈
     '''
-    return 'pump_manual'
+    def get(self, on_off):
+        '''
+        使用 GET 方法開啟／關閉植物燈
+        '''
+        b = brightness_monitor.BrightnessMonitor()
+        b.control_the_light(bool(on_off))
+        return {'status': 200}
 
 
-@app.route('/get_temperature')
-def get_temperature():
+# 開啟馬達
+class Motor(Resource):
     '''
-    - 溫度監測
-    這個函式會回傳 "get_temperature" 字串
+    開啟馬達
     '''
-    return 'get_temperature'
+    def get(self):
+        '''
+        使用 GET 方法開啟馬達
+        '''
+        h = humidity_monitor.HumidityMonitor()
+        h.switch_pump()
+        return {'status': 200}
 
 
-@app.route('/get_brightness')
-def get_brightness():
-    '''
-    - 亮度監測
-    這個函式會回傳 "get_brightness" 字串
-    '''
-    return 'get_brightness'
-
-
-@app.route('/get_humidity')
-def get_humidity():
-    '''
-    - 濕度監測
-    這個函式會回傳 "get_humidity" 字串
-    '''
-    return 'get_humidity'
-
-
-@app.route('/get_plant_status')
-def get_plant_status():
-    '''
-    - 遠端控制
-    這個函式會回傳 "get_plant_status" 字串
-    '''
-    return 'get_plant_status'
-
-
-@app.route('/pump_manual_remote')
-def pump_manual_remote():
-    '''
-    - 遠端控制
-    這個函式會回傳 "pump_manual_remote" 字串
-    '''
-    return 'pump_manual'
-
-
-@app.route('/swich_light_remote')
-def swich_light_remote():
-    '''
-    - 遠端控制
-    這個函式會回傳 "swich_light_remote" 字串
-    '''
-    return 'swich_light'
-
-
-@app.route('/update_ngrok_service')
-def update_ngrok_service():
-    '''
-    - 動態更新 IP
-    這個函式會回傳 "update_ngrok_service" 字串
-    '''
-    return 'update_ngrok_service'
-
-
-@app.route('/send_email')
-def send_email():
-    '''
-    - 動態更新 IP
-    這個函式會回傳 "send_email" 字串
-    '''
-    return 'send_email'
-
+# 註冊各 Endpoints
+api.add_resource(Environment, '/plant_env')
+api.add_resource(PlantLight, '/plant_light/<on_off>')
+api.add_resource(Motor, '/motor_on')
 
 if __name__ == '__main__':
     app.run(
