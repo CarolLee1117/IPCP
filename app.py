@@ -1,11 +1,15 @@
 '''
 Use flask-restful to create a simple API
 '''
+import os
+from time import sleep
+from threading import Thread
+
 from flasgger import Swagger
 from flask import Flask
-from flask_restful import Api, Resource, reqparse
+from flask_restful import Api, Resource
 
-from utilities import brightness_monitor, humidity_monitor, temperature_monitor
+from utilities import dynamic_url_updater, brightness_monitor, humidity_monitor, temperature_monitor
 
 app = Flask(__name__)
 api = Api(app)
@@ -15,6 +19,57 @@ app.config['SWAGGER'] = {
     'uiversion': 3
 }
 swagger = Swagger(app)
+
+
+# 使用 multi-threading 監控環境，並自動開啟馬達或植物燈
+def monitor_environment():
+    '''
+    使用 multi-threading 監控環境，並自動開啟馬達或植物燈
+    '''
+    h = humidity_monitor.HumidityMonitor()
+    b = brightness_monitor.BrightnessMonitor()
+
+    # 30 mins
+    interval = 1800
+
+    while True:
+        try:
+            humidity = h.show_humidity()
+            if humidity["soil_humidity_threshold"]:
+                h.switch_pump()
+
+            brightness = b.show_brightness()
+            b.control_the_light(not brightness["brightness"])
+            sleep(interval)
+        except KeyboardInterrupt:
+            break
+
+
+def update_ngrok_url():
+    '''
+    使用 multi-threading 監控 ngrok 啟動時間，並更新 Tunneling URL
+    '''
+    duu = dynamic_url_updater.dynamicUrlUpdater()
+    # 7.5 hrs
+    interval = 27000
+    while True:
+        try:
+            duu.restart_ngrok()
+            sleep(3) # wait for ngrok to start        
+            print(duu.get_ngrok_url())
+            sleep(interval)
+        except KeyboardInterrupt:
+            break
+    os.system('killall ngrok')
+
+
+# 啟動 multi-threading
+t1 = Thread(target=update_ngrok_url)
+t1.start()
+t1.join()
+t2 = Thread(target=monitor_environment)
+t2.start()
+t2.join()
 
 
 # 取得環境參數（濕度、亮度、溫度）
