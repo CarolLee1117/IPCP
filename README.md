@@ -15,5 +15,3 @@ pip install Flask
 ```bash
 python app.py
 ```
-
-3. 哈哈我只是測試給組員用的文字，之後會刪掉。
