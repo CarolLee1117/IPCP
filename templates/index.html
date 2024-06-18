@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+  <script>
+    /*!
+   * long-press.js
+   * Pure JavaScript long-press event
+   * https://github.com/john-doherty/long-press
+   * @author John Doherty <www.johndoherty.info>
+   * @license MIT
+   */
+    ! function (t, e) {
+      "use strict";
+
+      function n() {
+        this.dispatchEvent(new CustomEvent("long-press", {
+          bubbles: !0,
+          cancelable: !0
+        })), clearTimeout(o), console && console.log && console.log("long-press fired on " + this.outerHTML)
+      }
+      var o = null,
+        u = "ontouchstart" in t || navigator.MaxTouchPoints > 0 || navigator.msMaxTouchPoints > 0,
+        s = u ? "touchstart" : "mousedown",
+        i = u ? "touchcancel" : "mouseout",
+        a = u ? "touchend" : "mouseup",
+        c = u ? "touchmove" : "mousemove";
+      "initCustomEvent" in e.createEvent("CustomEvent") && (t.CustomEvent = function (t, n) {
+        n = n || {
+          bubbles: !1,
+          cancelable: !1,
+          detail: void 0
+        };
+        var o = e.createEvent("CustomEvent");
+        return o.initCustomEvent(t, n.bubbles, n.cancelable, n.detail), o
+      }, t.CustomEvent.prototype = t.Event.prototype), e.addEventListener(s, function (t) {
+        var e = t.target,
+          u = parseInt(e.getAttribute("data-long-press-delay") || "1500", 10);
+        o = setTimeout(n.bind(e), u)
+      }), e.addEventListener(a, function (t) {
+        clearTimeout(o)
+      }), e.addEventListener(i, function (t) {
+        clearTimeout(o)
+      }), e.addEventListener(c, function (t) {
+        clearTimeout(o)
+      })
+    }(this, document);
+  </script>
+  <link
+    href="static/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    type="text/css"
+  >
+  <link
+    rel="stylesheet"
+    href="static/fontawesome/css/all.css"
+    type="text/css"
+  >
+  <script
+    src="static/dist/js/bootstrap.bundle.min.js"
+    type="text/css"
+  ></script>
+  <style>
+    /* Global */
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      font-family: ubuntu mono;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+
+    body::before {
+      content: attr(data-text);
+      color: rgba(78, 77, 77, 0.2);
+      font-size: 50vw;
+      text-align: center;
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      z-index: -1;
+    }
+
+
+    /* 上方區域 */
+    .top-sect {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 20px;
+      font-weight: bold;
+    }
+
+    .upload-photo-btn {
+      background-color: #fff;
+      color: grey;
+      border: none;
+      border-radius: 50%;
+      padding: 10px;
+      margin: 5px;
+      font-size: 20px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    /* 中間區域 */
+    .mid-sect {
+      width: 100%;
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+    }
+
+    .plant-img-gp {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      width: 30%;
+      height: 300px;
+
+      position: relative;
+    }
+
+    .plant-img-gp img {
+      border-radius: 10px;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .upload-photo-btn {
+      position: absolute;
+      right: 5px;
+      bottom: 5px;
+    }
+
+    .sys-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: space-evenly;
+      width: 30%;
+      height: 280px;
+    }
+
+    #plant-name,
+    #user-name {
+      cursor: pointer;
+    }
+
+    #plant-name:active,
+    #plant-name:hover,
+    #user-name:active,
+    #user-name:hover {
+      color: rgb(186, 186, 186);
+    }
+
+    #plant-info-list {
+      padding: 10px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-gp {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      width: auto;
+    }
+
+    .func-btn {
+      background-color: #fff;
+      color: grey;
+      border: none;
+      border-radius: 5px;
+      padding: 10px;
+      margin: 5px;
+      font-size: 20px;
+      cursor: pointer;
+      width: 65px;
+    }
+
+    /* 下方區域 */
+    .bottom-sect {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 15px;
+    }
+
+    .circle-btn {
+      background-color: #fff;
+      color: grey;
+      border: none;
+      border-radius: 50%;
+      padding: 10px;
+      margin-bottom: 5px;
+      font-size: 20px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Decorators */
+    .auto-mode-on {
+      background-color: #1d9203;
+      color: #fff;
+    }
+
+    .alert {
+      position: absolute;
+      top: -100px;
+      /* Start above the viewport */
+      left: 50%;
+      transform: translateX(-50%);
+      right: 0;
+      text-align: center;
+      padding: 20px;
+      transition: top 0.5s;
+      /* Smooth slide down */
+      width: 30%;
+    }
+
+    .auto-mode-off {
+      background-color: #df4548;
+      color: #fff;
+    }
+
+    .start-watering {
+      background-color: #fff;
+      color: #3498db;
+    }
+
+    .stop-watering {
+      background-color: #fff;
+      color: grey;
+    }
+
+    .light-on {
+      background-color: #fff;
+      color: #f1c40f;
+    }
+
+    .light-off {
+      background-color: #fff;
+      color: grey;
+    }
+
+    .update {
+      background-color: #fff;
+      color: #06b71d;
+    }
+
+    /* RWD: w - 900px */
+    @media (max-width: 900px) {
+      body::before {
+        font-size: 30vh;
+        width: 30vh;
+      }
+
+      .mid-sect {
+        justify-content: space-evenly;
+      }
+
+      .plant-img-gp {
+        width: auto;
+        align-items: center;
+      }
+
+      .sys-panel {
+        width: auto;
+        align-items: center;
+      }
+
+      .alert {
+        width: 60%;
+      }
+    }
+
+    /* RWD: w - 580px */
+    @media (max-width: 580px) {
+      .mid-sect {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .plant-img-gp {
+        width: auto;
+        height: 200px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .plant-img-gp img {
+        width: 100%;
+        height: 100%;
+      }
+
+      .sys-panel {
+        width: auto;
+        align-items: center;
+      }
+
+      .btn-gp {
+        margin-top: 0;
+      }
+
+      body::before {
+        font-size: 10vw;
+        width: 30vh;
+
+        top: 5%;
+        right: -8%;
+      }
+
+      .alert {
+        width: 80%;
+      }
+    }
+  </style>
+  <title>物聯網植物照護平台</title>
+</head>
+
+<body
+  class="auto-mode-off"
+  data-text="手動"
+>
+  <div class="top-sect">
+    <h3>物聯網植物照護平台</h3>
+  </div>
+
+  <div class="mid-sect">
+    <div class="plant-img-gp">
+      <img
+        src="static/uploads/no_bug_at_all.png"
+        alt="植物圖片"
+        id="uploaded-image"
+      />
+      <button
+        class="upload-photo-btn"
+        title="按下後可上傳新照片並更新"
+        onclick="document.getElementById('file-input').click()"
+      ><i class="fas fa-camera"></i></button>
+      <input
+        type="file"
+        name="file"
+        id="file-input"
+        onchange="uploadFile()"
+      >
+    </div>
+    <div class="sys-panel">
+      <div class="plant-info">
+        <h1><span
+            id="plant-name"
+            data-long-press-delay="500"
+            title="長按後可修改植物名稱"
+          >植物名稱</span> <i class="fas fa-leaf"></i></h1>
+        <h5><i class="fas fa-user"></i> 照顧者 | <span
+            id="user-name"
+            data-long-press-delay="500"
+            title="長按後可修改照顧者名稱"
+          >Clee</span></h5>
+        <div id="plant-info-list">
+          <div>
+            <i class="plant-info-list-item fas fa-thermometer-half"></i> 環境溫度 |
+            <span
+              class="info-values"
+              id="temperature"
+            >28 °C</span>
+          </div>
+          <div>
+            <i class="plant-info-list-item fas fa-tint"></i> 空氣濕度 |
+            <span
+              class="info-values"
+              id="moisture"
+            >70.0 %</span>
+          </div>
+          <div>
+            <i class="plant-info-list-item fas fa-tint"></i> 土壤濕度 |
+            <span
+              class="info-values"
+              id="soil-moisture"
+            >充足</span>
+          </div>
+          <div>
+            <i class="plant-info-list-item fas fa-lightbulb"></i> 環境亮度 |
+            <span
+              class="info-values"
+              id="brightness"
+            >充足</span>
+          </div>
+        </div>
+      </div>
+      <div class="btn-gp">
+        <button
+          class='func-btn'
+          title="按下後更新環境資訊"
+          id="refresh-btn"
+        ><i class="fas fa-sync-alt"></i></button>
+        <button
+          class='func-btn'
+          title="按下後開始澆水"
+          id="watering-btn"
+        ><i class="fas fa-tint"></i></button>
+        <button
+          class='func-btn light-off'
+          title="按下後切換開關燈狀態"
+          id="light-btn"
+        ><i class="fas fa-lightbulb"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-sect">
+    <h6 id="copyright">© 2024 IPCP</h6>
+    <button
+      class="circle-btn"
+      title="按下後切換成自動模式"
+      id="auto-mode-btn"
+    ><i class="fas fa-hand-paper"></i></button>
+  </div>
+  </div>
+
+  <script>
+    // const PREFIX = 'http://192.168.1.147:5000';
+    const PREFIX = '';
+    const API = {
+      PLANT_ENV: `${PREFIX}/plant_env`,
+      PLANT_LIGHT: `${PREFIX}/plant_light`,
+      MOTOR_ON: `${PREFIX}/motor_on`,
+      AUTO_MODE: `${PREFIX}/auto_mode`,
+      PLANT_PROFILE: `${PREFIX}/plant_profile`,
+      UPLOAD_PICTURE: `${PREFIX}/upload_picture`,
+    };
+    const MANUAL_ICON = '<i class="fas fa-hand-paper"></i>';
+    const AUTO_ICON = '<i class="fas fa-robot"></i>';
+
+    // beautifulAlert function 顯示一個美化的提示訊息
+    async function beautifulAlert(message, logStyle) {
+      const alertDiv = document.createElement('div');
+      alertDiv.classList.add('alert', `alert-${logStyle}`);
+      alertDiv.textContent = message;
+      document.body.appendChild(alertDiv); // Append to body to cover the top part of the page
+
+      // Slide in
+      await setTimeout(() => {
+        alertDiv.style.top = "100px"; // Slide down to just at the top of the viewport
+      }, 100); // Short delay to ensure the transition happens
+
+      // Remove after 3 seconds
+      await setTimeout(() => {
+        alertDiv.style.top = "-100px"; // Slide back up before removing
+        setTimeout(() => {
+          alertDiv.remove();
+        }, 500); // Wait for slide up to finish
+      }, 3000);
+    }
+
+    // 更新濕度臨界值資訊
+    function updateSoilHumidityThresholds(soil_humidity_threshold) {
+      if (soil_humidity_threshold === 1) {
+        document.getElementById('soil-moisture').style.color = 'yellow';
+        document.getElementById('soil-moisture').style.fontWeight = 'bold';
+      } else {
+        document.getElementById('soil-moisture').style.color = 'white';
+        document.getElementById('soil-moisture').style.fontWeight = 'normal';
+      }
+    }
+
+    // 更新亮度臨界值資訊
+    function updateBrightnessThresholds(brightness) {
+      if (brightness === 1) {
+        document.getElementById('brightness').style.color = 'yellow';
+        document.getElementById('brightness').style.fontWeight = 'bold';
+      } else {
+        document.getElementById('brightness').style.color = 'white';
+        document.getElementById('brightness').style.fontWeight = 'normal';
+      }
+    }
+
+    // 透過 API.AUTO_MODE 取得自動模式狀態
+    async function updateAutoMode() {
+      const autoModeRes = await fetch(API.AUTO_MODE);
+      const autoModeResData = await autoModeRes.json();
+      const { mode } = autoModeResData;
+      if (mode === 0) {
+        document.body.classList.remove('auto-mode-on');
+        document.body.classList.add('auto-mode-off');
+        document.body.setAttribute('data-text', '手動');
+        document.getElementById('auto-mode-btn').innerHTML = MANUAL_ICON;
+      } else {
+        document.body.classList.remove('auto-mode-off');
+        document.body.classList.add('auto-mode-on');
+        document.body.setAttribute('data-text', '自動');
+        document.getElementById('auto-mode-btn').innerHTML = AUTO_ICON;
+      }
+
+      return mode;
+    }
+
+    // 透過 API.PLANT_ENV 取得植物環境資訊
+    async function updateEnv() {
+      const res = await fetch(API.PLANT_ENV);
+      const resData = await res.json();
+      if (resData.status !== 200) {
+        await beautifulAlert('取得植物環境資訊時發生錯誤，請稍後再試', 'danger');
+        return;
+      }
+      const { brightness, humidity, temperature } = resData;
+      document.getElementById('temperature').textContent = `${temperature.temperature} °C`;
+      document.getElementById('moisture').textContent = `${humidity.humidity} %`;
+      document.getElementById('soil-moisture').textContent = humidity.soil_humidity_threshold === 0 ? '充足' : '乾燥';
+      document.getElementById('brightness').textContent = brightness.brightness === 1 ? '不足' : '充足';
+      updateSoilHumidityThresholds(humidity.soil_humidity_threshold);
+      updateBrightnessThresholds(brightness.brightness);
+    }
+
+    // 透過 API.PLANT_LIGHT 取得燈光狀態
+    async function updateLightStatus() {
+      const lightRes = await fetch(API.PLANT_LIGHT);
+      const lightResData = await lightRes.json();
+      const { msg } = lightResData;
+      if (msg === 'the light is turned on') {
+        document.getElementById('light-btn').classList.remove('light-off');
+        document.getElementById('light-btn').classList.add('light-on');
+      } else {
+        document.getElementById('light-btn').classList.remove('light-on');
+        document.getElementById('light-btn').classList.add('light-off');
+      }
+    }
+
+    // 透過 API.PLANT_PROFILE 取得植物名稱、照顧者名稱、照片 
+    async function updatePlantProfile() {
+      const profileRes = await fetch(API.PLANT_PROFILE);
+      const profileResData = await profileRes.json();
+      const { plant_name, care_taker, photo_path } = profileResData;
+      document.getElementById('plant-name').textContent = plant_name;
+      document.getElementById('user-name').textContent = care_taker;
+      document.querySelector('.plant-img-gp img').src = photo_path;
+    }
+
+    // 更新植物環境資訊
+    async function updatePlantEnv() {
+      const automodeStatus = await updateAutoMode();
+      await updateEnv();
+      await updatePlantProfile();
+      await updateLightStatus();
+    }
+
+    // disable all buttons
+    function disableAllButtons() {
+      /*
+      Disable all buttons and change cursor to wait
+      */
+      document.getElementById('refresh-btn').disabled = true;
+      document.getElementById('watering-btn').disabled = true;
+      document.getElementById('light-btn').disabled = true;
+      document.getElementById('auto-mode-btn').disabled = true;
+      document.getElementsByClassName('upload-photo-btn')[0].disabled = true;
+
+      document.getElementById('refresh-btn').style.cursor = 'wait';
+      document.getElementById('watering-btn').style.cursor = 'wait';
+      document.getElementById('light-btn').style.cursor = 'wait';
+      document.getElementById('auto-mode-btn').style.cursor = 'wait';
+      document.getElementsByClassName('upload-photo-btn')[0].style.cursor = 'wait';
+    }
+
+    // enable all buttons
+    function enableAllButtons() {
+      /*
+      Enable all buttons and change cursor to pointer
+      */
+      document.getElementById('refresh-btn').disabled = false;
+      document.getElementById('watering-btn').disabled = false;
+      document.getElementById('light-btn').disabled = false;
+      document.getElementById('auto-mode-btn').disabled = false;
+      document.getElementsByClassName('upload-photo-btn')[0].disabled = false;
+
+      document.getElementById('refresh-btn').style.cursor = 'pointer';
+      document.getElementById('watering-btn').style.cursor = 'pointer';
+      document.getElementById('light-btn').style.cursor = 'pointer';
+      document.getElementById('auto-mode-btn').style.cursor = 'pointer';
+      document.getElementsByClassName('upload-photo-btn')[0].style.cursor = 'pointer';
+    }
+
+    // 當頁面載入完成後，透過 updatePlantEnv 取得環境資訊
+    window.addEventListener('load', async () => {
+      await updatePlantEnv();
+    });
+
+    // 按下 #refresh-btn 透過 API.PLANT_ENV 取得植物環境資訊
+    document.getElementById('refresh-btn').addEventListener('click', async () => {
+      /*
+      回應格式如下:
+      {
+        "status": 200,
+        "brightness": {
+          "brightness": 0 # 不用開燈
+        },
+        "humidity": {
+          "humidity": 70.0,
+          "soil_humidity_threshold": 0 # 土壤不乾
+        },
+        "temperature": {
+          "temperature": 23.0
+        }
+      }
+      */
+      document.getElementById('refresh-btn').classList.add('update');
+      disableAllButtons();
+
+      const res = await fetch(API.PLANT_ENV);
+      const resData = await res.json();
+      const { brightness, humidity, temperature } = resData;
+      document.getElementById('temperature').textContent = `${temperature.temperature} °C`;
+      document.getElementById('moisture').textContent = `${humidity.humidity} %`;
+      document.getElementById('soil-moisture').textContent = humidity.soil_humidity_threshold === 0 ? '充足' : '乾燥';
+      document.getElementById('brightness').textContent = brightness.brightness === 1 ? '不足' : '充足';
+      await beautifulAlert('環境資訊已更新', 'success');
+      updateSoilHumidityThresholds(humidity.soil_humidity_threshold);
+      updateBrightnessThresholds(brightness.brightness);
+
+      document.getElementById('refresh-btn').classList.remove('update');
+      enableAllButtons();
+    });
+
+    // 按下 #watering-btn 透過 API.MOTOR_ON 開始澆水
+    document.getElementById('watering-btn').addEventListener('click', async () => {
+      /*
+      回應格式如下:
+      {
+        "status": 200,
+        "humidity": 70.0,
+        "soil_humidity_threshold": 1,
+        "message": "The plant has been watered"
+      }
+      */
+      document.getElementById('watering-btn').classList.add('start-watering');
+      disableAllButtons();
+
+      await updateEnv();
+      const pre_soil_humidity_threshold = document.getElementById('soil-moisture').textContent === '充足' ? 0 : 1;
+      const res = await fetch(API.MOTOR_ON);
+      const resData = await res.json();
+      beautifulAlert('澆水中', 'warning');
+      const { humidity, soil_humidity_threshold, message } = resData;
+      document.getElementById('moisture').textContent = `${humidity} %`;
+      document.getElementById('soil-moisture').textContent = soil_humidity_threshold === 0 ? '充足' : '乾燥';
+      if (pre_soil_humidity_threshold === 1 && soil_humidity_threshold === 0) {
+        await beautifulAlert('已澆水', 'success');
+      } else if (pre_soil_humidity_threshold === 1 && soil_humidity_threshold === 1) {
+        await beautifulAlert('水分仍不足，須再澆水', 'warning');
+      } else {
+        await beautifulAlert('水分已充足，無須澆水', 'danger');
+      }
+      updateSoilHumidityThresholds(soil_humidity_threshold);
+      document.getElementById('watering-btn').classList.remove('start-watering');
+      enableAllButtons();
+    });
+
+    // 按下 #light-btn 透過 API.PLANT_LIGHT 切換燈光狀態
+    document.getElementById('light-btn').addEventListener('click', async () => {
+      /*
+      回應格式如下:
+      {
+        "status": 200,
+        "brightness": 0,
+        "msg": "the light is turned on"
+      }
+      */
+      const light_status = document.getElementById('light-btn').classList.contains('light-off') ? 'off' : 'on';
+      document.getElementById('light-btn').classList.remove(`light-${light_status}`);
+      disableAllButtons();
+
+      let arg = light_status === 'on' ? 0 : 1;
+      const res = await fetch(`${API.PLANT_LIGHT}?on_off=${arg}`);
+      const resData = await res.json();
+      const { msg } = resData;
+      if (msg === 'the light is turned on') {
+        await beautifulAlert('植物燈開啟', 'success');
+        document.getElementById('light-btn').classList.add('light-on');
+      } else {
+        await beautifulAlert('植物燈關閉', 'success');
+        document.getElementById('light-btn').classList.add('light-off');
+      }
+      enableAllButtons();
+    });
+
+    // 按下 #auto-mode-btn 透過 API.AUTO_MODE 切換自動模式
+    document.getElementById('auto-mode-btn').addEventListener('click', async () => {
+      /*
+      回應格式如下:
+        {
+          "status": 200,
+          "msg": "Switch to manual mode",
+          "mode": 0 # 手動模式
+        }
+      */
+      disableAllButtons();
+      const arg = document.body.classList.contains('auto-mode-on') ? 0 : 1;
+      await updateEnv();
+      const res = await fetch(`${API.AUTO_MODE}?on_off=${arg}`);
+      const resData = await res.json();
+      const { mode } = resData;
+      if (mode === 0) {
+        document.body.classList.remove('auto-mode-on');
+        document.body.classList.add('auto-mode-off');
+        document.getElementById('auto-mode-btn').innerHTML = MANUAL_ICON;
+        document.body.setAttribute('data-text', '手動');
+        await beautifulAlert('已切換至手動模式', 'success');
+      } else {
+        document.body.classList.remove('auto-mode-off');
+        document.body.classList.add('auto-mode-on');
+        document.getElementById('auto-mode-btn').innerHTML = AUTO_ICON;
+        document.body.setAttribute('data-text', '自動');
+        await beautifulAlert('已切換至自動模式', 'success');
+      }
+      // 再次更新環境資訊
+      await updateEnv();
+      enableAllButtons();
+    });
+
+    // 長按 #plant-name 後（約 .5 秒），可以修改植物名稱
+    document.getElementById('plant-name').addEventListener('long-press', async () => {
+      const nowPlantName = document.getElementById('plant-name').textContent;
+      const newPlantName = prompt('請輸入新的植物名稱');
+      if (newPlantName && newPlantName !== nowPlantName) {
+        document.getElementById('plant-name').textContent = newPlantName;
+        // 使用 API.PLANT_PROFILE POST 更新植物名稱
+        const res = await fetch(API.PLANT_PROFILE, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            plant_name: newPlantName,
+            care_taker: document.getElementById('user-name').textContent,
+            photo_path: document.querySelector('.plant-img-gp img').src,
+          }),
+        });
+        await beautifulAlert('植物名稱已更新', 'success');
+      }
+    });
+
+    // 長按 #user-name 後（約 .5 秒），可以修改照顧者名稱
+    document.getElementById('user-name').addEventListener('long-press', async () => {
+      const nowUserName = document.getElementById('user-name').textContent;
+      const newUserName = prompt('請輸入新的照顧者名稱');
+      console.log(nowUserName, newUserName);
+      if (newUserName && newUserName !== nowUserName) {
+        document.getElementById('user-name').textContent = newUserName;
+        // 使用 API.PLANT_PROFILE POST 更新照顧者名稱
+        const bodyInfo = {
+          plant_name: document.getElementById('plant-name').textContent,
+          care_taker: newUserName,
+          photo_path: document.querySelector('.plant-img-gp img').src,
+        };
+        const res = await fetch(API.PLANT_PROFILE, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(bodyInfo),
+        });
+        await beautifulAlert('照顧者名稱已更新', 'success');
+      }
+    });
+
+    // 按下 .upload-photo-btn 透過 #file-input 上傳新照片
+    async function uploadFile() {
+      disableAllButtons();
+
+      let fileInput = document.getElementById('file-input');
+      if (fileInput.files.length > 0) {
+        let formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        try {
+          const response = await fetch(API.UPLOAD_PICTURE, {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await response.json();
+          let imageUrl = 'static/uploads/' + data.filename;
+          document.getElementById('uploaded-image').src = imageUrl;
+          console.log('Upload successful', data);
+          // 使用 API.PLANT_PROFILE POST 更新照顧者名稱
+          const bodyInfo = {
+            plant_name: document.getElementById('plant-name').textContent,
+            care_taker: document.getElementById('user-name').textContent,
+            photo_path: imageUrl
+          };
+          const res = await fetch(API.PLANT_PROFILE, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bodyInfo),
+          });
+          await beautifulAlert('植物照片已更新', 'success');
+        } catch (error) {
+          console.error('Upload error:', error);
+          await beautifulAlert('發生錯誤請稍後再試', 'danger');
+        }
+      }
+
+      enableAllButtons();
+    }
+  </script>
+</body>
+
+</html>
