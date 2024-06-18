@@ -8,16 +8,12 @@ from email.mime.text import MIMEText
 import smtplib
 import os
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 class EmailSender:
     def __init__(self, src, sap):
         self.src = src
         self.sap = sap
-    
+
     def send_email(self, subject, dst, context):
         '''
         這是一個寄信的函式，格式如下：
@@ -38,7 +34,7 @@ class EmailSender:
                 smtp.ehlo()
                 smtp.starttls()
                 # 這裡輸入帳號與應用程式密碼
-                smtp.login(self.src, self.sap)  
+                smtp.login(self.src, self.sap)
                 smtp.send_message(content)
                 return f"已寄信成功 - {subject} to {dst}"
             except smtplib.SMTPException as e:
@@ -46,6 +42,10 @@ class EmailSender:
 
 
 if __name__ == "__main__":
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
     my_sap = os.getenv('SAP')
     es = EmailSender(
         src='clee704202@gmail.com',
